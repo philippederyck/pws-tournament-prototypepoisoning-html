@@ -1,13 +1,61 @@
-<!DOCTYPE html>
 <html>
-  <head>
-    <title>Prototype poisoning</title>
-  </head>
-  <body>
-    <div class="container">
-      <h1 class="text-center">Prototype Poisoning demo application</h1>
+  Nothing to see here. It's all in the code!
+  <script>
+    // Define request defaults
+    const defaults = { client: 'frontend' };
 
-      TODO
-    </div>
-  </body>
+    /* The data below simulates user-provided data */
+    const userProvidedData = JSON.parse(
+      `{"title": "Amazing food!","__proto__": {"isAdmin": true}}`
+    );
+
+    /* Figure out with of the functions below suffers from global prototype poisoning */
+    /* 
+     You can view log messages in the browser console. You can also open the preview page
+     in a new tab, and view the output there 
+     */
+
+    function function1(data) {
+      const body = { ...defaults, ...userProvidedData };
+      console.log(body);
+      // Send request with body
+    }
+
+    function function2(data) {
+      const body = Object.assign({}, defaults);
+      for (var key in data) {
+        body[key] = data[key];
+      }
+      console.log(body);
+      // Send request with body
+    }
+
+    function function3(data) {
+      const body = data;
+      for (var key in defaults) {
+        body[key] = defaults[key];
+      }
+      console.log(body);
+      // Send request with body
+    }
+
+    function function4(data) {
+      const body = merge(defaults, data);
+      console.log(body);
+      // Send request with body
+    }
+
+    /* Helper functions, do not touch or edit */
+    function merge(obj1, obj2) {
+      for (const attr in obj2) {
+        if (typeof obj1[attr] === 'object' && typeof obj2[attr] === 'object') {
+          console.log(`recursing ${attr}`);
+          merge(obj1[attr], obj2[attr]);
+        } else {
+          obj1[attr] = obj2[attr];
+        }
+      }
+      return obj1;
+    }
+  </script>
 </html>
